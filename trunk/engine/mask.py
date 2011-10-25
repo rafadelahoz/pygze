@@ -13,6 +13,9 @@ class Mask:
     def collides(self, other):
         return False
     
+    def update(self):
+        pass
+    
 def MaskBox(Mask):
     def __init__(self, x=-1, y=-1, w, h):
         Mask.__init__(self, x, y, w, h)

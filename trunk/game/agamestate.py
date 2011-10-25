@@ -1,17 +1,22 @@
+import pygame
+
 from engine.gamestate import GameState
-import pygame 
+from engine.graphics import Stamp
+
+from aentity import Dude
 
 class AGameState(GameState):
     def init(self, game):
         GameState.init(self, game)
-        print "AGameState initiated"
         self.bgColor = pygame.Color(100, 100, 100)
+        self.gfxDude = Stamp(self.game.gfxEngine, "dude.png")
+        for i in range(1, 10):
+            self.add(Dude(i*24, i*16, self.game, self))
         
     def update(self):
-        print "AGameState updating!"
         GameState.update(self)
         
     def render(self, gfxEngine):
         GameState.render(self, gfxEngine)
-        gfxEngine.clearRender(pygame.Color(100, 100, 240))
-        print "AGameState rendering!"
+        #gfxEngine.clearRender(pygame.Color(100, 100, 240))
+        #self.gfxDude.render(32, 32)
