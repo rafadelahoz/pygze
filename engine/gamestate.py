@@ -11,14 +11,13 @@ class GameState:
         self.game = game
     
     def update(self):
-        print "GameState updating!"
         # Init Step
         for ent in self.entities:
             ent.onInitStep()
         
         # Update entities
         for ent in self.entities:
-            ent.onStep()
+            ent.update()
         
         # Check collisions
         self.collisionManager.autoCollisions()
@@ -29,10 +28,16 @@ class GameState:
     
     def render(self, gfxEngine):
         for ent in self.entities:
-            ent.onRender(gfxEngine)
+            ent.onRender()
 
     def end(self):
         pass
     
     def clear(self):
         pass
+
+    def add(self, entity):
+        self.entities.append(entity)
+        
+    def remove(self, entity):
+        self.entities.remove(entity)

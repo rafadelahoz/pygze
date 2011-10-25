@@ -28,17 +28,14 @@ class GfxEngine:
         if color == None:
             color = self.screenColor
         self.renderSurface.fill(color)
-        print "Last color: {0}".format(color)
             
     def clearScreen(self, color = None):
         if color == None:
             color = self.screenColor
         self.screenSurface.fill(color)
-        print "Screen color: {0}".format(self.screenColor)
             
     def renderScreen(self):
         self.clearScreen()
-        print "Super Blit!"
         self.screenSurface.blit(
             pygame.transform.scale(self.renderSurface, 
                                    (self.renderWidth*self.renderScaleH,

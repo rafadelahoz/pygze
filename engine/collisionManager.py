@@ -46,7 +46,7 @@ class CollisionManager:
                             if entB.collidable:
                                 # EntB will be noticed later
                                 if entA.collides(entB):
-                                        entA.onCollision(entB)
+                                        entA.onCollision(entB, subscriber)
                                     # if entB.acceptCollisions:
                                     #    entB.onCollision(entA)
                       
@@ -60,9 +60,9 @@ class CollisionManager:
                             if entB.collidable:
                                 if entA.collides(entB):
                                     if entA.acceptCollisions:
-                                        entA.onCollision(entB)
+                                        entA.onCollision(entB, groupB)
                                     if entB.acceptCollisions:
-                                        entB.onCollision(entA)
+                                        entB.onCollision(entA, groupA)
                                     
     # Check collision between ent and groupB                                    
     def checkCollisionEntityGroup(self, ent, group):
@@ -72,6 +72,6 @@ class CollisionManager:
                     if entB.collidable:
                         if ent.collides(entB):
                             if ent.acceptCollisions:
-                                ent.onCollision(entB)
+                                ent.onCollision(entB, group)
                             if entB.acceptCollisons:
-                                entB.onCollison(ent)
+                                entB.onCollison(ent, "any")
