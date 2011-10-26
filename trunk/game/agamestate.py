@@ -17,6 +17,7 @@ class AGameState(GameState):
         GameState.update(self)
         
     def render(self, gfxEngine):
+	gfxEngine.clearRender(pygame.Color(234, 58, 67))
         GameState.render(self, gfxEngine)
         #gfxEngine.clearRender(pygame.Color(100, 100, 240))
         #self.gfxDude.render(32, 32)
