@@ -7,5 +7,6 @@ class Dude(Entity):
         self.graphic = Stamp(self.game.gfxEngine, "dude.png")
 
     def onStep(self):
+	self.graphic.rotation += random.random()*10
 	self.x += random.randint(-10, 10)
 
