@@ -1,4 +1,5 @@
 import pygame
+import random
 
 from engine.gamestate import GameState
 from engine.graphics import Stamp
@@ -11,7 +12,10 @@ class AGameState(GameState):
         self.bgColor = pygame.Color(100, 100, 100)
         self.gfxDude = Stamp(self.game.gfxEngine, "dude.png")
         for i in range(1, 10):
-            self.add(Dude(i*24, i*16, self.game, self))
+	    d = Dude(i*24, i*16, self.game, self)
+	    d.graphic.alpha = 0.1+random.random()
+	    print "{0}".format(d.graphic.alpha)
+            self.add(d)
         
     def update(self):
         GameState.update(self)
