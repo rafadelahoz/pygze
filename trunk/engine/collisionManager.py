@@ -5,11 +5,18 @@ class CollisionManager:
         self.groups = []
         self.listeners = {}
         
+    # Set groups
+    def setGroups(self, groups):
+        for g in groups:
+            self.groups.append(g)
+            self.listeners[g] = []
+            self.entities[g] = []
+        
     # Insert entity into group 
     def add(self, entity, group):
         
         # Add group to CollisionManager if not present
-        if group in self.groups:
+        if not group in self.groups:
             self.groups.append(group)
             self.listeners[group] = []
             
@@ -27,8 +34,14 @@ class CollisionManager:
             
     # Subscribe group to collisions with to
     def subscribe(self, group, to):
-        if group in self.groups and to in self.groups:
-            self.listeners[to].append(group)
+        if not group in self.groups:
+            self.groups.append(group)
+            self.listeners[group] = [] 
+        if not to in self.groups:
+            self.groups.append(to)
+            self.listeners[to] = []
+            
+        self.listeners[to].append(group)
     
     # Unsubscribe group from of
     def unsubscribe(self, group, of):
@@ -41,17 +54,17 @@ class CollisionManager:
         for group in self.groups:
             for subscriber in self.listeners[group]:
                 for entA in self.entities[group]:
-                    if entA.collidable and entA.acceptCollisions:
+                    if entA.collidable:
                         for entB in self.entities[subscriber]:
-                            if entB.collidable:
+                            if entB.collidable and entB.acceptCollisions:
                                 # EntB will be noticed later
                                 if entA.collides(entB):
-                                        entA.onCollision(entB, subscriber)
+                                    entB.onCollision(group, entA)
                                     # if entB.acceptCollisions:
                                     #    entB.onCollision(entA)
                       
     # Check collisions between groupA and groupB  
-    def checkCollisions(self, groupA, groupB, forced = False):
+    def checkCollisions(self, groupA, groupB, forced=False):
         if groupA in self.groups and groupB in self.groups:
             if groupA in self.listeners[groupB] or forced:
                 for entA in groupA:

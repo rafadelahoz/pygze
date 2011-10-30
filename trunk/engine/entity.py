@@ -16,6 +16,7 @@ class Entity:
         self.mask = None
         
         # Graphic
+        self.depth = 0
         self.graphic = None
         
         # Timers
@@ -26,16 +27,21 @@ class Entity:
     
     def update(self):
         # Performs common operations on every entity
+        self.onStep()
         if self.graphic != None:
             self.graphic.update()
         if self.mask != None:
+            self.mask.updatePosition(self.x, self.y)
             self.mask.update()
         for i in range(0, 9):
             if self.timers[i] > 0:
                 self.timers[i] -= 1
                 if self.timers[i] == 0:
                     self.onTimer(i)
-        self.onStep()
+        
+    def collides(self, ent):
+        if not self.mask is None and not ent.mask is None:
+            return self.mask.collides(ent.mask)            
     
     def onInit(self):
         pass

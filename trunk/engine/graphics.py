@@ -30,7 +30,7 @@ class Stamp(Graphic):
         if self.xScale < 0 or self.yScale < 0:
             toRender = pygame.transform.flip(toRender, (self.xScale < 0), (self.yScale < 0))
         if self.xScale != 1.0 or self.yScale != 1.0:
-            toRender = pygame.transform.scale(toRender, (self.image.get_width()*self.xScale, self.image.get_height()*self.yScale))
+            toRender = pygame.transform.scale(toRender, (self.image.get_width() * abs(self.xScale), self.image.get_height() * abs(self.yScale)))
 
         # Rotation: working but enlarges surface (solveable with an offset)
         if self.rotation != 0.0:
@@ -38,6 +38,6 @@ class Stamp(Graphic):
     
         # Alpha: working
         if self.alpha != 1.0:
-            toRender.set_alpha(self.alpha*255)
+            toRender.set_alpha(self.alpha * 255)
 
         self.gfxEngine.renderSurface.blit(toRender, (x, y))
