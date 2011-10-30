@@ -7,8 +7,12 @@ class GameState:
         self.collisionManager = CollisionManager()
         self.entities = []
         
-    def init(self, game):
+    def _init(self, game):
         self.game = game
+        self.init()
+        
+    def init(self):
+        pass
     
     def update(self):
         # Init Step
@@ -27,7 +31,7 @@ class GameState:
             ent.onEndStep()
     
     def render(self, gfxEngine):
-        for ent in self.entities:
+        for ent in sorted(self.entities, key=lambda entity: entity.depth):
             ent.onRender()
 
     def end(self):

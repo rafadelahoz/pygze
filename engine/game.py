@@ -1,8 +1,9 @@
 import pygame
 from engine.gfxengine import GfxEngine
+from engine.input import Input
 
 class Game:
-    def __init__(self, renderW, renderH, fps = 30, title = "Game", scaleH=-1, scaleV=-1, windowW=-1, windowH=-1):
+    def __init__(self, renderW, renderH, fps=30, title="Game", scaleH= -1, scaleV= -1, windowW= -1, windowH= -1):
         self.gameState = None
         self.nextState = None
         self.clock = pygame.time.Clock()
@@ -12,6 +13,8 @@ class Game:
         
         self.gfxEngine = GfxEngine(renderW, renderH, scaleH, scaleV, windowW, windowH)
         pygame.display.set_caption(title)
+        
+        self.input = Input()
 
         self.finished = False
         
@@ -23,9 +26,13 @@ class Game:
         
     def update(self):
         # Input, ...
+        self.input.update()
+        
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
                 self.finished = True
+                
+        self.onStep()
         
         if self.gameState != None:
             # Update GameState
@@ -56,8 +63,12 @@ class Game:
     def changeGameState(self, gstate):
         if self.gameState == None:
             self.gameState = gstate
-            self.gameState.init(self)
+            self.gameState._init(self)
         else:
             if self.nextState != None:
                 self.nextState.clear()
             self.nextState = gstate
+            
+    # Overridable
+    def onStep(self):
+        pass

@@ -1,23 +1,15 @@
 import pygame
-import random
 
 from engine.gamestate import GameState
-from engine.graphics import Stamp
 
-from aentity import Dude
+from aentity import Dude, Other
 
 class AGameState(GameState):
-    def init(self, game):
-        GameState.init(self, game)
-        self.bgColor = pygame.Color(100, 100, 100)
-        self.gfxDude = Stamp(self.game.gfxEngine, "dude.png")
-        for i in range(1, 10):
-            d = Dude(i*24, i*16, self.game, self)
-            d.graphic.alpha = 0.1+random.random()
-            d.graphic.color = pygame.Color(random.randrange(0, 255, 1), random.randrange(0, 255, 1), random.randrange(0, 255, 1))
-            d.graphic.xScale = 1.5
-            d.graphic.yScale = 2.0
-            self.add(d)
+    def init(self):
+        GameState.init(self)
+        self.collisionManager.setGroups(["player", "other"])
+        self.add(Dude(40, self.game.gfxEngine.renderSurface.get_height() / 2 - 48, self.game, self))
+        self.add(Other(300, 48, self.game, self))
         
     def update(self):
         GameState.update(self)
