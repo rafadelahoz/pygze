@@ -6,6 +6,7 @@ class GameState:
         self.height = height
         self.collisionManager = CollisionManager()
         self.entities = []
+        self.deathrow = []
         
     def _init(self, game):
         self.game = game
@@ -29,6 +30,11 @@ class GameState:
         # End Step
         for ent in self.entities:
             ent.onEndStep()
+            
+        # Delete instances
+        for ent in self.deathrow:
+            self._remove(ent)
+        self.deathrow = []
     
     def render(self, gfxEngine):
         for ent in sorted(self.entities, key=lambda entity: entity.depth):
@@ -42,6 +48,13 @@ class GameState:
 
     def add(self, entity):
         self.entities.append(entity)
+        entity.onInit()
+        
+    def _remove(self, entity):
+        self.entities.remove(entity)
+        entity.onDestroy()
+        del entity
         
     def remove(self, entity):
-        self.entities.remove(entity)
+        if not entity in self.deathrow:
+            self.deathrow.append(entity)
