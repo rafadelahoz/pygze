@@ -1,35 +1,43 @@
+import pygame
+
 class Mask:
     def __init__(self, x= -1, y= -1, w= -1, h= -1):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
+        self.rect = pygame.Rect(x, y, w, h)
         self.maskType = "Mask"
         
     def updatePosition(self, x, y):
-        self.x = x
-        self.y = y
+        self.rect.x = x
+        self.rect.y = y
         
+    # Fast collision checking for rects
     def collides(self, other):
-        return False
+        return self.rect.colliderect(other.rect)
     
     def update(self):
         pass
     
+    def getX(self):
+        return self.rect.x
+
+    def getY(self):
+        return self.rect.y
+    
+    def getW(self):
+        return self.rect.w
+    
+    def getH(self):
+        return self.rect.h
+    
+    def renderBounds(self, surface, color):
+        pygame.draw.rect(surface, color, self.rect, 1)
+            
 class MaskBox(Mask):
     def __init__(self, w, h, x= -1, y= -1):
         Mask.__init__(self, x, y, w, h)
         self.maskType = "MaskBox"
     
+    def updatePosition(self, x, y):
+        Mask.updatePosition(self, x, y)
+    
     def collides(self, other):
-        if (other.maskType == "MaskBox"):
-            left, oleft = self.x, other.x
-            right, oright = self.x + self.w, other.x + other.w
-            top, otop = self.y, other.y
-            bottom, obottom = self.y + self.h, other.y + other.h
-            
-            if bottom <= otop or top >= obottom or right <= oleft or left >= oright:
-                return False
-            return True
-        else:
-            return False
+        return Mask.collides(self, other)

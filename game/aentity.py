@@ -39,9 +39,9 @@ class Dude(Entity):
             
         self.depth = self.y
         
-    def onRender(self):
-        Entity.onRender(self)
-        pygame.draw.rect(self.game.gfxEngine.renderSurface, pygame.Color(10, 255, 20), pygame.Rect(self.mask.x, self.mask.y, self.mask.w, self.mask.h), 1)
+    #def onRender(self):
+    #    Entity.onRender(self)
+    #    self.mask.renderBounds(self.game.gfxEngine.renderSurface, pygame.Color(10, 255, 20))
         
     def onCollision(self, group, other):
         if group == "other":
@@ -70,6 +70,6 @@ class Other(Entity):
             
         self.depth = self.y
         
-    def onRender(self):
-        Entity.onRender(self)
-        pygame.draw.rect(self.game.gfxEngine.renderSurface, pygame.Color(10, 255, 20), pygame.Rect(self.mask.x, self.mask.y, self.mask.w, self.mask.h), 1)
+    #def onRender(self):
+    #    Entity.onRender(self)
+    #    self.mask.renderBounds(self.game.gfxEngine.renderSurface, pygame.Color(10, 255, 20))

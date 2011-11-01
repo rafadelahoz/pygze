@@ -41,8 +41,17 @@ class Entity:
         
     def collides(self, ent):
         if not self.mask is None and not ent.mask is None:
-            return self.mask.collides(ent.mask)            
+            return self.mask.collides(ent.mask)
+        
+    def destroy(self):
+        self.world.remove(self)
     
+    # Overridable
+    # User initialization (on instantiation)
+    def init(self):
+        pass
+    
+    # Entity added to GameState
     def onInit(self):
         pass
     
@@ -66,4 +75,7 @@ class Entity:
         pass
     
     def onCustomEvent(self, event):
+        pass
+
+    def onDestroy(self):
         pass

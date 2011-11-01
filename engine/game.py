@@ -21,9 +21,6 @@ class Game:
         # let user perform initialization
         self.onInit()
         
-    def onInit(self):
-        pass
-        
     def update(self):
         # Input, ...
         self.input.update()
@@ -70,5 +67,8 @@ class Game:
             self.nextState = gstate
             
     # Overridable
+    def onInit(self):
+        pass
+    
     def onStep(self):
         pass
