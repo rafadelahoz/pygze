@@ -5,6 +5,7 @@ from engine.game import Game
 from engine.gamestate import GameState
 from engine.entity import Entity
 from engine.mask import MaskBox
+from engine.graphics import Stamp
 
 class BreakerGame(Game):
     def onStep(self):
@@ -57,10 +58,14 @@ class Bat(Entity):
         self.world.collisionManager.add(self, "bat")
                 
     def onStep(self):
-        if abs(self.joy.getAxis(0)) > 0.3:
-            self.x += self.sp*self.joy.getAxis(0)
+        if self.joy != None:
+            if abs(self.joy.getAxis(0)) > 0.3:
+                self.x += self.sp*self.joy.getAxis(0)
         
-        if self.joy.buttonPressed(0):
+            if self.joy.buttonPressed(0):
+                self.world.add(Ball(self.x+self.mask.getW()/2-4, self.y-8, self.game, self.world))
+        
+        if self.game.input.keyPressed(pygame.K_a):
             self.world.add(Ball(self.x+self.mask.getW()/2-4, self.y-8, self.game, self.world))
         
         if self.game.input.key(pygame.K_LEFT):
@@ -80,19 +85,20 @@ class Ball(Entity):
     def onInit(self):
         self.sp = 4
         self.dir = random.randint(0, 18)*10
-        self.mask = MaskBox(8, 8)
+        self.mask = MaskBox(6, 6, offset=(1, 1))
         self.color = pygame.Color(255, 255, 255)
         self.world.collisionManager.add(self, "ball")
         self.ox = self.x
         self.oy = self.y
+        self.graphic = Stamp(self.game.gfxEngine, "gfx/ball.png")
         
     def onStep(self):
         self.ox = self.x
         self.oy = self.y
         
-        self.x -= (self.sp * math.cos(math.radians(self.dir)))
-        self.y -= (self.sp * math.sin(math.radians(self.dir)))
-        
+        self.x = self.x - math.ceil(self.sp * math.cos(math.radians(self.dir)))
+        self.y = self.y - math.ceil(self.sp * math.sin(math.radians(self.dir)))
+                
         if self.x < 0 or self.x > self.world.width or self.y < 0 or self.y > self.world.height:
             self.world.collisionManager.remove(self, "ball")
             self.destroy()
@@ -138,6 +144,7 @@ class Ball(Entity):
             
         
     def onRender(self):
+        Entity.onRender(self)
         pygame.draw.rect(self.game.gfxEngine.renderSurface, self.color, self.mask.rect)
         # self.mask.renderBounds(self.game.gfxEngine.renderSurface, pygame.Color(255, 0, 0))
         

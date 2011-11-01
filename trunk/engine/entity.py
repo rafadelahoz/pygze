@@ -40,11 +40,16 @@ class Entity:
                     self.onTimer(i)
         
     def collides(self, ent):
+        if ent == self:
+            return False
         if not self.mask is None and not ent.mask is None:
             return self.mask.collides(ent.mask)
         
     def destroy(self):
         self.world.remove(self)
+        
+    def placeFree(self, x, y):
+        return self.world.placeFree(self, x, y)
     
     # Overridable
     # User initialization (on instantiation)

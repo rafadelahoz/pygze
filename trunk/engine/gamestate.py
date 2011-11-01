@@ -20,12 +20,12 @@ class GameState:
         for ent in self.entities:
             ent.onInitStep()
         
+        # Check collisions
+        self.collisionManager.autoCollisions()
+        
         # Update entities
         for ent in self.entities:
             ent.update()
-        
-        # Check collisions
-        self.collisionManager.autoCollisions()
         
         # End Step
         for ent in self.entities:
@@ -58,3 +58,6 @@ class GameState:
     def remove(self, entity):
         if not entity in self.deathrow:
             self.deathrow.append(entity)
+            
+    def placeFree(self, entity, x, y):
+        return self.collisionManager.placeFree(entity, x, y)
