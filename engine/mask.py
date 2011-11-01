@@ -1,13 +1,14 @@
 import pygame
 
 class Mask:
-    def __init__(self, x= -1, y= -1, w= -1, h= -1):
+    def __init__(self, x= -1, y= -1, w =-1, h= -1, offset=(0, 0)):
         self.rect = pygame.Rect(x, y, w, h)
+        self.offset = offset
         self.maskType = "Mask"
         
     def updatePosition(self, x, y):
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.x = x+self.offset[0]
+        self.rect.y = y+self.offset[1]
         
     # Fast collision checking for rects
     def collides(self, other):
@@ -32,8 +33,8 @@ class Mask:
         pygame.draw.rect(surface, color, self.rect, 1)
             
 class MaskBox(Mask):
-    def __init__(self, w, h, x= -1, y= -1):
-        Mask.__init__(self, x, y, w, h)
+    def __init__(self, w, h, x= -1, y= -1, offset=(0, 0)):
+        Mask.__init__(self, x, y, w, h, offset)
         self.maskType = "MaskBox"
     
     def updatePosition(self, x, y):

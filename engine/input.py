@@ -37,14 +37,16 @@ class Input:
     def getUsedJoysticks(self):
         return self.usedJoys
     
-    def addJoystick(self, n= -1):
+    def addJoystick(self, n = -1):
         if n == -1 and self.usedJoys < self.numJoys:
             j = Joystick(self.usedJoys, self)
             self.joys.append(j)
             self.usedJoys += 1
             return j
         else:
-            return self.joys[n]
+            if n != -1 and self.usedJoys > n:
+                return self.joys[n]
+            else: return None
         
     def removeJoystick(self, n):
         if n in range(0, len(self.usedJoys) - 1):

@@ -88,3 +88,19 @@ class CollisionManager:
                                 ent.onCollision(entB, group)
                             if entB.acceptCollisons:
                                 entB.onCollison(ent, "any")
+                                
+    def placeFree(self, entity, x, y):
+        ox = entity.x
+        oy = entity.y
+        entity.mask.x = x
+        entity.mask.y = y
+        for g in self.groups:
+            for ent in self.entities[g]:
+                if ent != entity and ent.collidable and ent.acceptCollisions:
+                    if ent.collides(entity):
+                        entity.mask.x = ox
+                        entity.mask.y = oy
+                        return False
+        entity.mask.x = ox
+        entity.mask.y = oy
+        return True
