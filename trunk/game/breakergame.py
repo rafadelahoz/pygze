@@ -1,11 +1,13 @@
 # Arkanoid Style game
-import pygame, random, math
-
+from engine.entity import Entity
 from engine.game import Game
 from engine.gamestate import GameState
-from engine.entity import Entity
+from engine.graphics import Stamp, Spritemap
 from engine.mask import MaskBox
-from engine.graphics import Stamp
+import pygame
+import random
+import math
+
 
 class BreakerGame(Game):
     def onStep(self):
@@ -90,7 +92,8 @@ class Ball(Entity):
         self.world.collisionManager.add(self, "ball")
         self.ox = self.x
         self.oy = self.y
-        self.graphic = Stamp(self.game.gfxEngine, "gfx/ball.png")
+        self.graphic = Spritemap(self.game.gfxEngine, "gfx/ball.png", 4, 2) 
+        # self.graphic = Stamp(self.game.gfxEngine, "gfx/ball.png")
         
     def onStep(self):
         self.ox = self.x
@@ -145,7 +148,7 @@ class Ball(Entity):
         
     def onRender(self):
         Entity.onRender(self)
-        pygame.draw.rect(self.game.gfxEngine.renderSurface, self.color, self.mask.rect)
+        # pygame.draw.rect(self.game.gfxEngine.renderSurface, self.color, self.mask.rect)
         # self.mask.renderBounds(self.game.gfxEngine.renderSurface, pygame.Color(255, 0, 0))
         
     def onDestroy(self):

@@ -64,3 +64,26 @@ class Stamp(Graphic):
             self.gfxEngine.renderSurface.blit(pygame.transform.flip(self.image, (self.xScale < 0), (self.yScale < 0)), (x, y))
         else:
             self.gfxEngine.renderSurface.blit(self.image, (x, y))
+            
+class Spritemap(Graphic):
+    def __init__(self, gfxEngine, path, cols, rows):
+        Graphic.__init__(self, gfxEngine)
+        self.image = pygame.image.load(path).convert()
+        self.cols = cols
+        self.rows = rows
+        self.spriteW = self.image.get_width() / self.cols
+        self.spriteH = self.image.get_height() / self.rows
+        self.imageIndex = 0
+        self.cnt = 0
+        
+    def update(self):
+        self.cnt += 1
+        if self.cnt > 4:
+            self.cnt = 0
+            self.imageIndex = (self.imageIndex + 1) % (self.cols*self.rows)
+        
+    def fastRender(self, x, y):
+        self.gfxEngine.renderSurface.blit(self.image, (x, y), 
+            ((self.imageIndex % self.cols)*self.spriteW,
+             (self.imageIndex / self.cols)*self.spriteW,
+             self.spriteW, self.spriteH))
