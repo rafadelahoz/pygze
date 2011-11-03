@@ -33,12 +33,12 @@ class BreakerLevel(GameState):
         rwall.rect = pygame.Rect(self.width-8, 8, 8, self.height-8)
         twall = Wall(0, 0, self.game, self)
         twall.rect = pygame.Rect(0, 0, self.width, 8)
-        # bwall = Wall(0, self.height-8, self.game, self)
-        # bwall.rect = pygame.Rect(0, self.height-8, self.width, 8)
+        bwall = Wall(0, self.height-8, self.game, self)
+        bwall.rect = pygame.Rect(0, self.height-8, self.width, 8)
         self.add(lwall)
         self.add(rwall)
         self.add(twall)
-        # self.add(bwall)
+        self.add(bwall)
         for i in range(32, self.width-32, 32):
             for j in range(32, 32+8*(3+random.randint(0,4)), 8):
                 self.add(Brick(i, j, self.game, self))
@@ -86,13 +86,14 @@ class Bat(Entity):
 class Ball(Entity):
     def onInit(self):
         self.sp = 4
-        self.dir = random.randint(0, 18)*10
+        #self.dir = random.randint(3, 18-3)*10
+        self.dir = 45
         self.mask = MaskBox(6, 6, offset=(1, 1))
         self.color = pygame.Color(255, 255, 255)
         self.world.collisionManager.add(self, "ball")
         self.ox = self.x
         self.oy = self.y
-        self.graphic = Spritemap(self.game.gfxEngine, "gfx/ball.png", 4, 2) 
+        self.graphic = Spritemap(self.game.gfxEngine, "gfx/ball.png", 8, 8) 
         # self.graphic = Stamp(self.game.gfxEngine, "gfx/ball.png")
         
     def onStep(self):
