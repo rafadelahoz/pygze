@@ -1,7 +1,8 @@
-import pygame
-from pygame import locals
-
 from engine.utils import config
+from pygame import locals
+import pygame
+import math
+
 
 class Graphic:
     def __init__(self, gfxEngine):
@@ -66,23 +67,46 @@ class Stamp(Graphic):
             self.gfxEngine.renderSurface.blit(self.image, (x, y))
             
 class Spritemap(Graphic):
-    def __init__(self, gfxEngine, path, cols, rows):
+    def __init__(self, gfxEngine, path, spriteW, spriteH):
         Graphic.__init__(self, gfxEngine)
         self.image = pygame.image.load(path).convert()
-        self.cols = cols
-        self.rows = rows
-        self.spriteW = self.image.get_width() / self.cols
-        self.spriteH = self.image.get_height() / self.rows
+        self.spriteW = spriteW
+        self.spriteH = spriteH 
+        self.cols = self.image.get_width() / spriteW
+        self.rows = self.image.get_height() / spriteH
         self.imageIndex = 0
-        self.anim = Anim("run", 5, [0, 1, 2, 3, 4, 5, 6, 7], True, self.thing)
-        self.anim.start()
+        self.anims = {}
+        self.currentAnim = None
     
-    def thing(self):
-        print "IT IS ALIVE!"
+    def addAnim(self, name, anim):
+        self.anims[name] = anim
+        
+    def removeAnim(self, name):
+        self.anims.pop(name)
+        
+    def playAnim(self, name, restart = False, speed = -1, loop = -1, callback = None):
+        if self.currentAnim != name and self.currentAnim != None:
+            self.anims[self.currentAnim].stop()
+        if name in self.anims.keys():
+            self.currentAnim = name
+            self.anims[name].start(restart = False, speed = -1, loop = -1, callback = None)
+            
+    def pauseAnim(self):
+        if self.currentAnim != None:
+            self.anims[self.currentAnim].pause()
+            
+    def resumeAnim(self):
+        if self.currentAnim != None:
+            self.anims[self.currentAnim].resume()
+            
+    def setAnimSpeed(self, sp):
+        if self.currentAnim != None:
+            self.anims[self.currentAnim].speed = sp
     
     def update(self):
-        self.anim.update()
-        self.imageIndex = self.anim.getImageIndex()
+        if self.currentAnim != None:
+            self.anims[self.currentAnim].update()
+            self.imageIndex = self.anims[self.currentAnim].getImageIndex()
         
     def fastRender(self, x, y):
         self.gfxEngine.renderSurface.blit(self.image, (x, y), 
@@ -91,16 +115,14 @@ class Spritemap(Graphic):
              self.spriteW, self.spriteH))
 
 class Anim:
-    def __init__(self, name, delay, frames, loop = False, callback = None):
-        self.name = name
-
+    def __init__(self, frames, speed, loop = False, callback = None):
         # Storage of defaults
-        self._delay = delay
+        self._speed = speed
         self._loop = loop
         self._callback = callback
 
         # Actual values
-        self.delay = delay
+        self.speed = speed
         self.loop = loop
         self.callback = callback
         
@@ -113,20 +135,23 @@ class Anim:
         
     def update(self):
         if self.playing and not self.paused:
-            self.ticks += 1
-            if self.ticks >= self.delay:
+            self.ticks += self.speed
+            (dec, int) = math.modf(self.ticks)
+            if dec == 0:
                 # Reset ticker
-                self.ticks = 0
+                # self.ticks = 0
                 # Increase frame
-                self.frame += 1
+                self.frame = int.__int__()
                 # If finished
-                if self.frame >= len(self.frames):
+                if self.speed > 0 and self.frame >= len(self.frames):
                     # If it's a loop, restart
                     if self.loop:
+                        self.ticks = 0
                         self.frame = 0
                         self.finished = False
                     # If it's not, we're finished
                     else:
+                        self.ticks = 0
                         self.frame = len(self.frames)-1
                         self.finished = True
                         self.playing = False
@@ -134,18 +159,29 @@ class Anim:
                     # Anyway, callback
                     if self.callback != None:
                         self.callback()
+                elif self.speed < 0 and self.frame < 0:
+                    if self.loop:
+                        self.ticks = len(self.frames)-1
+                        self.frame = len(self.frames)-1
+                        self.finished = False
+                    else:
+                        self.ticks = 0
+                        self.frame = 0
+                        self.finished = True
+                        self.playing = False
+                        self.paused = False
                     
     def getImageIndex(self):
         return self.frames[self.frame]
 
     # Play the animation, with optional new parameters
-    def start(self, restart = False, delay = -1, loop = -1, callback = None):
+    def start(self, restart = False, speed = -1, loop = -1, callback = None):
         # Only acts if not playing or forced restart
         if not self.playing or restart:
-            if delay == -1:
-                self.delay = self._delay
+            if speed == -1:
+                self.speed = self._speed
             else:
-                self.delay = delay
+                self.speed = speed
                 
             if loop == -1:
                 self.loop = self._loop
@@ -170,3 +206,11 @@ class Anim:
         
     def stop(self):
         self.playing = False
+        self.paused = False        
+        self.frame = 0
+        self.playing = False
+        self.finished = False
+        self.ticks = 0
+        
+    def isPlaying(self):
+        return self.playing and not self.paused
