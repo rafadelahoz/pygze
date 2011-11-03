@@ -74,16 +74,99 @@ class Spritemap(Graphic):
         self.spriteW = self.image.get_width() / self.cols
         self.spriteH = self.image.get_height() / self.rows
         self.imageIndex = 0
-        self.cnt = 0
-        
+        self.anim = Anim("run", 5, [0, 1, 2, 3, 4, 5, 6, 7], True, self.thing)
+        self.anim.start()
+    
+    def thing(self):
+        print "IT IS ALIVE!"
+    
     def update(self):
-        self.cnt += 1
-        if self.cnt > 4:
-            self.cnt = 0
-            self.imageIndex = (self.imageIndex + 1) % (self.cols*self.rows)
+        self.anim.update()
+        self.imageIndex = self.anim.getImageIndex()
         
     def fastRender(self, x, y):
         self.gfxEngine.renderSurface.blit(self.image, (x, y), 
             ((self.imageIndex % self.cols)*self.spriteW,
              (self.imageIndex / self.cols)*self.spriteW,
              self.spriteW, self.spriteH))
+
+class Anim:
+    def __init__(self, name, delay, frames, loop = False, callback = None):
+        self.name = name
+
+        # Storage of defaults
+        self._delay = delay
+        self._loop = loop
+        self._callback = callback
+
+        # Actual values
+        self.delay = delay
+        self.loop = loop
+        self.callback = callback
+        
+        self.paused = False
+        self.frames = frames        
+        self.frame = 0
+        self.playing = False
+        self.finished = False
+        self.ticks = 0
+        
+    def update(self):
+        if self.playing and not self.paused:
+            self.ticks += 1
+            if self.ticks >= self.delay:
+                # Reset ticker
+                self.ticks = 0
+                # Increase frame
+                self.frame += 1
+                # If finished
+                if self.frame >= len(self.frames):
+                    # If it's a loop, restart
+                    if self.loop:
+                        self.frame = 0
+                        self.finished = False
+                    # If it's not, we're finished
+                    else:
+                        self.frame = len(self.frames)-1
+                        self.finished = True
+                        self.playing = False
+                        self.paused = False
+                    # Anyway, callback
+                    if self.callback != None:
+                        self.callback()
+                    
+    def getImageIndex(self):
+        return self.frames[self.frame]
+
+    # Play the animation, with optional new parameters
+    def start(self, restart = False, delay = -1, loop = -1, callback = None):
+        # Only acts if not playing or forced restart
+        if not self.playing or restart:
+            if delay == -1:
+                self.delay = self._delay
+            else:
+                self.delay = delay
+                
+            if loop == -1:
+                self.loop = self._loop
+            else:
+                self.loop = loop
+                
+            if callback == None:
+                self.callback = self._callback
+            else:
+                self.callback = callback
+            
+            self.frame = 0
+            self.ticks = 0
+            self.paused = False
+            self.playing = True
+            
+    def pause(self):
+        self.paused = True
+        
+    def resume(self):
+        self.paused = False
+        
+    def stop(self):
+        self.playing = False
