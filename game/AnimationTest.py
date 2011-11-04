@@ -22,20 +22,23 @@ class Player(Entity):
         self.graphic.addAnim("up", Anim([19, 18, 17, 16], 0.5, False))
         self.graphic.playAnim("stand")
     
+    def run(self):
+        self.graphic.playAnim("run")
+    
     def onStep(self):
         if self.game.input.key(pygame.K_LEFT):
-            self.graphic.playAnim("run", speed=-0.5)
-        elif self.game.input.key(pygame.K_RIGHT):
+            self.graphic.playAnim("walk")
+        elif self.game.input.keyPressed(pygame.K_RIGHT):
             if self.graphic.currentAnim == "crouch":
-                self.graphic.playAnim("up", callback=self.graphic.playAnim)
+                self.graphic.playAnim("up", callback=self.run)
             else:
-                self.graphic.playAnim("run", speed = 0.5)
+                self.graphic.playAnim("run")
         elif self.game.input.key(pygame.K_DOWN):
             if self.graphic.currentAnim != "crouch":
                 self.graphic.playAnim("crouch")
         elif self.game.input.key(pygame.K_UP):
             if self.graphic.currentAnim == "crouch":
-                self.graphic.playAnim("crouch", speed=-0.5)
+                self.graphic.playAnim("up")
         
 game = AnimationTestGame(160, 140, title="AnimationTest", scaleH=3, scaleV=3)
 

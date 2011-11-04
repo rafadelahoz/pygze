@@ -89,7 +89,7 @@ class Spritemap(Graphic):
             self.anims[self.currentAnim].stop()
         if name in self.anims.keys():
             self.currentAnim = name
-            self.anims[name].start(restart = False, speed = -1, loop = -1, callback = None)
+            self.anims[name].start(restart, speed, loop, callback)
             
     def pauseAnim(self):
         if self.currentAnim != None:
@@ -109,7 +109,17 @@ class Spritemap(Graphic):
             self.imageIndex = self.anims[self.currentAnim].getImageIndex()
         
     def fastRender(self, x, y):
-        self.gfxEngine.renderSurface.blit(self.image, (x, y), 
+        # sprite = self.image.copy(self.image, 
+        #         ((self.imageIndex % self.cols)*self.spriteW, 
+        #          (self.imageIndex / self.cols)*self.spriteW,
+        #          spriteW, spriteH), ...
+        if self.xScale < 0 or self.yScale < 0:
+            self.gfxEngine.renderSurface.blit(pygame.transform.flip(self.image, (self.xScale < 0), (self.yScale < 0)), (x, y), 
+            ((self.imageIndex % self.cols)*self.spriteW,
+             (self.imageIndex / self.cols)*self.spriteW,
+             self.spriteW, self.spriteH))
+        else:
+            self.gfxEngine.renderSurface.blit(self.image, (x, y), 
             ((self.imageIndex % self.cols)*self.spriteW,
              (self.imageIndex / self.cols)*self.spriteW,
              self.spriteW, self.spriteH))
@@ -136,12 +146,12 @@ class Anim:
     def update(self):
         if self.playing and not self.paused:
             self.ticks += self.speed
-            (dec, int) = math.modf(self.ticks)
+            (dec, ent) = math.modf(self.ticks)
             if dec == 0:
                 # Reset ticker
                 # self.ticks = 0
                 # Increase frame
-                self.frame = int.__int__()
+                self.frame = ent.__int__()
                 # If finished
                 if self.speed > 0 and self.frame >= len(self.frames):
                     # If it's a loop, restart
@@ -159,7 +169,7 @@ class Anim:
                     # Anyway, callback
                     if self.callback != None:
                         self.callback()
-                elif self.speed < 0 and self.frame < 0:
+                elif self.speed < 0 and self.frame < -len(self.frames)+1:
                     if self.loop:
                         self.ticks = len(self.frames)-1
                         self.frame = len(self.frames)-1
