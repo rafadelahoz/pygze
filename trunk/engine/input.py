@@ -7,6 +7,8 @@ class Input:
         self.oldKeys = array.array('B')
         self.oldKeys = [0 for _i in range(1, len(self.keys))]
         
+        pygame.mouse.set_visible(False)
+        
         pygame.joystick.init()
         
         self.numJoys = pygame.joystick.get_count()
@@ -22,6 +24,7 @@ class Input:
         for joy in self.joys:
             joy.update()
             
+    # Keyboard
     def key(self, key):
         return self.keys[key]
     
@@ -31,6 +34,7 @@ class Input:
     def keyReleased(self, key):
         return (not self.keys[key] and self.oldKeys[key])
     
+    # Joystick
     def getNumJoysticks(self):
         return self.numJoys
     
@@ -51,6 +55,18 @@ class Input:
     def removeJoystick(self, n):
         if n in range(0, len(self.usedJoys) - 1):
             self.usedJoys[n].deactivate()
+            
+    # Mouse
+    # Get mouse position
+    # If gfxEngine provided, will give it relative to renderSurface and scale
+    # else it will give it relative to display
+    def getMousePosition(self, gfxEngine = None):
+        if gfxEngine == None:
+            return pygame.mouse.get_pos();
+        else:
+            (x, y) = pygame.mouse.get_pos();
+            return (x/gfxEngine.renderScaleH, y/gfxEngine.renderScaleV)
+    
     
 class Joystick:
     def __init__(self, jid, jinput):

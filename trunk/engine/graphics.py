@@ -77,6 +77,11 @@ class Spritemap(Graphic):
         self.imageIndex = 0
         self.anims = {}
         self.currentAnim = None
+
+    def getBox(self):
+        return ((self.imageIndex % self.cols)*self.spriteW,
+             (self.imageIndex / self.cols)*self.spriteW,
+             self.spriteW, self.spriteH)
     
     def addAnim(self, name, anim):
         self.anims[name] = anim
@@ -109,20 +114,16 @@ class Spritemap(Graphic):
             self.imageIndex = self.anims[self.currentAnim].getImageIndex()
         
     def fastRender(self, x, y):
-        # sprite = self.image.copy(self.image, 
-        #         ((self.imageIndex % self.cols)*self.spriteW, 
-        #          (self.imageIndex / self.cols)*self.spriteW,
-        #          spriteW, spriteH), ...
+        sprite = pygame.surface.Surface((self.spriteW, self.spriteH))
+        sprite.blit(self.image, (0, 0), self.getBox())
+        # Alpha: working
+        sprite.set_alpha(self.alpha * 255)
+        # Scale
         if self.xScale < 0 or self.yScale < 0:
-            self.gfxEngine.renderSurface.blit(pygame.transform.flip(self.image, (self.xScale < 0), (self.yScale < 0)), (x, y), 
-            ((self.imageIndex % self.cols)*self.spriteW,
-             (self.imageIndex / self.cols)*self.spriteW,
-             self.spriteW, self.spriteH))
+            self.gfxEngine.renderSurface.blit(pygame.transform.flip(sprite, 
+                                (self.xScale < 0), (self.yScale < 0)), (x, y))
         else:
-            self.gfxEngine.renderSurface.blit(self.image, (x, y), 
-            ((self.imageIndex % self.cols)*self.spriteW,
-             (self.imageIndex / self.cols)*self.spriteW,
-             self.spriteW, self.spriteH))
+            self.gfxEngine.renderSurface.blit(sprite, (x, y))
 
 class Anim:
     def __init__(self, frames, speed, loop = False, callback = None):
@@ -147,7 +148,7 @@ class Anim:
         if self.playing and not self.paused:
             self.ticks += self.speed
             (dec, ent) = math.modf(self.ticks)
-            if dec == 0:
+            if True:
                 # Reset ticker
                 # self.ticks = 0
                 # Increase frame
