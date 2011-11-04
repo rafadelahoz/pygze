@@ -3,6 +3,7 @@ from engine.game import Game
 from engine.gamestate import GameState
 from engine.graphics import Spritemap, Anim
 import pygame
+import random
 
 class AnimationTestGame(Game):
     def onInit(self):
@@ -10,7 +11,16 @@ class AnimationTestGame(Game):
     
 class Level(GameState):
     def init(self):
-        self.add(Player(72, 62, self.game, self))
+        for i in range(0, 10):
+            for j in range(0, 8):
+                self.add(Player(i*16, j*16, self.game, self))
+        # self.add(Player(72, 62, self.game, self))
+        
+    def renderForeground(self):
+        (x, y) = self.game.input.getMousePosition(self.game.gfxEngine)
+        pygame.draw.rect(self.game.gfxEngine.renderSurface,
+                         pygame.Color(0, 255, 255),
+                         (x, y, 2, 2))
         
 class Player(Entity):
     def onInit(self):
@@ -27,8 +37,10 @@ class Player(Entity):
     
     def onStep(self):
         if self.game.input.key(pygame.K_LEFT):
-            self.graphic.playAnim("walk")
+            self.graphic.xScale = -1
+            self.graphic.playAnim("run")
         elif self.game.input.keyPressed(pygame.K_RIGHT):
+            self.graphic.xScale = 1
             if self.graphic.currentAnim == "crouch":
                 self.graphic.playAnim("up", callback=self.run)
             else:
@@ -39,8 +51,11 @@ class Player(Entity):
         elif self.game.input.key(pygame.K_UP):
             if self.graphic.currentAnim == "crouch":
                 self.graphic.playAnim("up")
+                
+        if random.choice(range(1, 24)) == 4:
+            self.graphic.setAnimSpeed(random.random()*0.75)
         
-game = AnimationTestGame(160, 140, title="AnimationTest", scaleH=3, scaleV=3)
+game = AnimationTestGame(160, 140, title="AnimationTest", scaleH=3, scaleV=3, fps=60)
 
 while not game.finished:
     game.update()

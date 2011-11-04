@@ -37,8 +37,10 @@ class GameState:
         self.deathrow = []
     
     def render(self, gfxEngine):
+        self.renderBackground()
         for ent in sorted(self.entities, key=lambda entity: entity.depth):
             ent.onRender()
+        self.renderForeground()
 
     def end(self):
         pass
@@ -58,6 +60,12 @@ class GameState:
     def remove(self, entity):
         if not entity in self.deathrow:
             self.deathrow.append(entity)
-            
+
     def placeFree(self, entity, x, y):
         return self.collisionManager.placeFree(entity, x, y)
+    
+    def renderBackground(self):
+        pass
+    
+    def renderForeground(self):
+        pass
