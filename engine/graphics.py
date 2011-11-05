@@ -70,6 +70,7 @@ class Spritemap(Graphic):
     def __init__(self, gfxEngine, path, spriteW, spriteH):
         Graphic.__init__(self, gfxEngine)
         self.image = pygame.image.load(path).convert()
+        self.image.set_colorkey(self.image.get_at((0, 0)))
         self.spriteW = spriteW
         self.spriteH = spriteH 
         self.cols = self.image.get_width() / spriteW
@@ -115,7 +116,9 @@ class Spritemap(Graphic):
         
     def fastRender(self, x, y):
         sprite = pygame.surface.Surface((self.spriteW, self.spriteH))
+        sprite.fill(pygame.Color(255, 0, 255))
         sprite.blit(self.image, (0, 0), self.getBox())
+        sprite.set_colorkey(sprite.get_at((0, 0)))
         # Alpha: working
         sprite.set_alpha(self.alpha * 255)
         # Scale

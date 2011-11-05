@@ -20,7 +20,7 @@ class Entity:
         self.graphic = None
         
         # Timers
-        self.timers = [-1 for i in range(1, 10)]
+        self.timers = [-1 for _i in range(1, 10)]
             
         # Let user perform initialization
         self.init()
@@ -48,8 +48,11 @@ class Entity:
     def destroy(self):
         self.world.remove(self)
         
-    def placeFree(self, x, y):
-        return self.world.placeFree(self, x, y)
+    def placeFree(self, x, y, groups = "any"):
+        return self.world.placeFree(self, x, y, groups)
+    
+    def moveToContact(self, x, y, groups="any"):
+        return self.world.moveToContact(self, x, y, groups)
     
     # Overridable
     # User initialization (on instantiation)

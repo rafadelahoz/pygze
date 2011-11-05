@@ -67,6 +67,8 @@ class Input:
             (x, y) = pygame.mouse.get_pos();
             return (x/gfxEngine.renderScaleH, y/gfxEngine.renderScaleV)
     
+    def mouseButton(self, button):
+        return pygame.mouse.get_pressed()[button]
     
 class Joystick:
     def __init__(self, jid, jinput):

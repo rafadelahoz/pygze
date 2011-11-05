@@ -88,19 +88,71 @@ class CollisionManager:
                                 ent.onCollision(entB, group)
                             if entB.acceptCollisons:
                                 entB.onCollison(ent, "any")
-                                
-    def placeFree(self, entity, x, y):
+                 
+    # Notice! If groups != "any" then it's a list               
+    def placeFree(self, entity, x, y, groups = "any"):
         ox = entity.x
         oy = entity.y
-        entity.mask.x = x
-        entity.mask.y = y
-        for g in self.groups:
-            for ent in self.entities[g]:
-                if ent != entity and ent.collidable and ent.acceptCollisions:
-                    if ent.collides(entity):
-                        entity.mask.x = ox
-                        entity.mask.y = oy
-                        return False
-        entity.mask.x = ox
-        entity.mask.y = oy
+        entity.mask.updatePosition(x, y)
+        # If any group, check'em all
+        if groups == "any":
+            for g in self.groups:
+                for ent in self.entities[g]:
+                    if ent != entity and ent.collidable:
+                        if ent.collides(entity):
+                            entity.mask.updatePosition(ox, oy)
+                            return False
+        # If given group, check just those on the list
+        else:
+            for g in groups:
+                for ent in self.entities[g]:
+                    if ent != entity and ent.collidable:
+                        if ent.collides(entity):
+                            entity.mask.updatePosition(ox, oy)
+                            return False
+        # If not collided, place free
+        entity.mask.updatePosition(ox, oy)
         return True
+    
+    def moveToContact(self, entity, x, y, groups = "any"):
+        tx = entity.x
+        ty = entity.y
+        
+        if (tx, ty) == (x, y):
+            return
+        
+        deltaX, deltaY = 0, 0
+        if tx < x:
+            deltaX = +1
+        else:
+            deltaX = -1
+        if ty < y:
+            deltaY = +1
+        else:
+            deltaY = -1
+            
+        added = False
+        # Adjust x
+        while tx != x and self.placeFree(entity, tx, y, groups): 
+            tx += deltaX
+            added = True
+        if added:
+            tx -= deltaX
+            
+        # Adjust y
+        added = False
+        while ty != y and self.placeFree(entity, tx, ty, groups):
+                ty += deltaY
+                added = True
+        if added:
+            ty -= deltaY
+                
+        entity.x = tx
+        entity.y = ty
+        entity.mask.updatePosition(tx, ty)
+        
+    def instanceCount(self, group):
+        if group == "all":
+            return len(self.entities.values())
+        else:
+            return len(self.entities[group])
