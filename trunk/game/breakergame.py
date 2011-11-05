@@ -2,11 +2,11 @@
 from engine.entity import Entity
 from engine.game import Game
 from engine.gamestate import GameState
-from engine.graphics import Stamp, Spritemap
+from engine.graphics import Spritemap
 from engine.mask import MaskBox
+import math
 import pygame
 import random
-import math
 
 
 class BreakerGame(Game):
@@ -44,6 +44,7 @@ class BreakerLevel(GameState):
                 self.add(Brick(i, j, self.game, self))
                 
         self.add(Bat(0, 0, self.game, self))
+        self.add(Mousey(0, 0, self.game, self))
             
     def render(self, gfxEngine):
         self.game.gfxEngine.renderSurface.fill(self.bgColor)
@@ -185,3 +186,22 @@ class Brick(Entity):
     
     def onDestroy(self):
         self.world.collisionManager.remove(self, "brick")
+        
+class Mousey(Entity):
+    def onInit(self):
+        self.color = pygame.Color(255, 255, 255)
+        self.mask = MaskBox(5, 5, offset=(-2, -2))
+        
+    def onStep(self):
+        nx, ny = self.game.input.getMousePosition()
+        
+        if not self.placeFree(nx, ny, ["brick", "ball"]):
+            self.color = pygame.Color(255, 0, 0)
+        else:
+            self.color = pygame.Color(255, 255, 255)
+            
+        self.x = nx
+        self.y = ny
+        
+    def onRender(self):
+        self.mask.renderBounds(self.game.gfxEngine.renderSurface, self.color)

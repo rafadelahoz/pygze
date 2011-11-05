@@ -17,10 +17,12 @@ class Level(GameState):
         # self.add(Player(72, 62, self.game, self))
         
     def renderForeground(self):
+        c = pygame.Color(self.game.input.mouseButton(0)*255, 
+                         self.game.input.mouseButton(1)*255,
+                         self.game.input.mouseButton(2)*255);
         (x, y) = self.game.input.getMousePosition(self.game.gfxEngine)
         pygame.draw.rect(self.game.gfxEngine.renderSurface,
-                         pygame.Color(0, 255, 255),
-                         (x, y, 2, 2))
+                         c, (x, y, 2, 2))
         
 class Player(Entity):
     def onInit(self):
@@ -55,7 +57,7 @@ class Player(Entity):
         if random.choice(range(1, 24)) == 4:
             self.graphic.setAnimSpeed(random.random()*0.75)
         
-game = AnimationTestGame(160, 140, title="AnimationTest", scaleH=3, scaleV=3, fps=60)
+game = AnimationTestGame(160, 140, title="AnimationTest", scaleH=4, scaleV=4)
 
 while not game.finished:
     game.update()

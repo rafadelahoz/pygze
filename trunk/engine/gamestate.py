@@ -61,8 +61,14 @@ class GameState:
         if not entity in self.deathrow:
             self.deathrow.append(entity)
 
-    def placeFree(self, entity, x, y):
-        return self.collisionManager.placeFree(entity, x, y)
+    def placeFree(self, entity, x, y, groups = "all"):
+        return self.collisionManager.placeFree(entity, x, y, groups)
+    
+    def moveToContact(self, entity, x, y, groups = "all"):
+        return self.collisionManager.moveToContact(entity, x, y, groups)
+    
+    def instanceCount(self, group):
+        return self.collisionManager.instanceCount(group)
     
     def renderBackground(self):
         pass
