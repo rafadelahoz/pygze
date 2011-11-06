@@ -1,29 +1,39 @@
 import pygame
-import array
+# import array
 
 class Input:
     def __init__(self):
+        # Keyboard
         self.keys = pygame.key.get_pressed()
-        self.oldKeys = array.array('B')
-        self.oldKeys = [0 for _i in range(1, len(self.keys))]
+        # self.oldKeys = array.array('B')
+        self.oldKeys = [0 for _i in range(0, len(self.keys))]
         
-        pygame.mouse.set_visible(False)
+        # Mouse
+        # pygame.mouse.set_visible(False)
+        self.mouseButtons = pygame.mouse.get_pressed()
+        self.oldMouseButtons = [0 for _i in range(0, len(self.mouseButtons))] 
         
-        pygame.joystick.init()
-        
+        # Joystick
+        pygame.joystick.init()        
         self.numJoys = pygame.joystick.get_count()
         self.usedJoys = 0
         self.joys = []
     
     def update(self):
-        for k in range(0, len(self.keys) - 1):
+        # Keyboard
+        for k in range(0, len(self.keys)):
             self.oldKeys[k] = self.keys[k]
-            
         self.keys = pygame.key.get_pressed()
         
+        # Joystick
         for joy in self.joys:
             joy.update()
             
+        # Mouse
+        for k in range(0, len(self.mouseButtons)):
+            self.oldMouseButtons[k] = self.mouseButtons[k]
+        self.mouseButtons = pygame.mouse.get_pressed()
+                    
     # Keyboard
     def key(self, key):
         return self.keys[key]
@@ -68,7 +78,13 @@ class Input:
             return (x/gfxEngine.renderScaleH, y/gfxEngine.renderScaleV)
     
     def mouseButton(self, button):
-        return pygame.mouse.get_pressed()[button]
+        return self.mouseButtons[button]
+    
+    def mousePressed(self, button):
+        return self.mouseButtons[button] and not self.oldMouseButtons[button]
+    
+    def mouseReleased(self, button):
+        return not self.mouseButtons[button] and self.oldMouseButtons[button]
     
 class Joystick:
     def __init__(self, jid, jinput):

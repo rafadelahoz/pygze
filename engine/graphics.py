@@ -7,6 +7,10 @@ import math
 class Graphic:
     def __init__(self, gfxEngine):
         self.gfxEngine = gfxEngine
+        
+        self.w = 0
+        self.h = 0
+        
         self.color = pygame.Color(255, 255, 255)
         self.xScale = 1.0
         self.yScale = 1.0
@@ -16,7 +20,15 @@ class Graphic:
     def update(self):
         pass
 
-    def render(self, x, y):
+    def inView(self, camera, x, y):
+        if camera == None:
+            return True
+        else:
+            return camera.rectInView(pygame.Rect(x, y, self.w, self.h))
+
+    def render(self, x, y, camera = None):
+        if not camera == None:
+            (x, y) = camera.transform(x, y)
         if config.fastRender:
             self.fastRender(x, y)
         else:
@@ -32,6 +44,8 @@ class Stamp(Graphic):
     def __init__(self, gfxEngine, path):
         Graphic.__init__(self, gfxEngine)
         self.image = pygame.image.load(path).convert()
+        self.w = self.image.get_width()
+        self.h = self.image.get_height()
     
     # Full effects render
     def fullRender(self, x, y):
@@ -69,12 +83,19 @@ class Stamp(Graphic):
 class Spritemap(Graphic):
     def __init__(self, gfxEngine, path, spriteW, spriteH):
         Graphic.__init__(self, gfxEngine)
+        
         self.image = pygame.image.load(path).convert()
         self.image.set_colorkey(self.image.get_at((0, 0)))
+        
         self.spriteW = spriteW
-        self.spriteH = spriteH 
+        self.spriteH = spriteH
+        
+        self.w = spriteW
+        self.h = spriteH
+         
         self.cols = self.image.get_width() / spriteW
         self.rows = self.image.get_height() / spriteH
+        
         self.imageIndex = 0
         self.anims = {}
         self.currentAnim = None
@@ -150,7 +171,7 @@ class Anim:
     def update(self):
         if self.playing and not self.paused:
             self.ticks += self.speed
-            (dec, ent) = math.modf(self.ticks)
+            (_dec, ent) = math.modf(self.ticks)
             if True:
                 # Reset ticker
                 # self.ticks = 0
