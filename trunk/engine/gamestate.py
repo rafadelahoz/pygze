@@ -1,4 +1,5 @@
 from collisionManager import CollisionManager
+import pygame
 
 class GameState:
     def __init__(self, width, height):
@@ -7,6 +8,7 @@ class GameState:
         self.collisionManager = CollisionManager()
         self.entities = []
         self.deathrow = []
+        self.camera = None
         
     def _init(self, game):
         self.game = game
@@ -20,6 +22,8 @@ class GameState:
         for ent in self.entities:
             ent.onInitStep()
         
+        self.onStep()
+        
         # Check collisions
         self.collisionManager.autoCollisions()
         
@@ -31,6 +35,10 @@ class GameState:
         for ent in self.entities:
             ent.onEndStep()
             
+        # Update camera
+        if self.camera != None:
+            self.camera.update()
+            
         # Delete instances
         for ent in self.deathrow:
             self._remove(ent)
@@ -39,7 +47,7 @@ class GameState:
     def render(self, gfxEngine):
         self.renderBackground()
         for ent in sorted(self.entities, key=lambda entity: entity.depth):
-            ent.onRender()
+            ent._render(self.camera)
         self.renderForeground()
 
     def end(self):
@@ -75,3 +83,36 @@ class GameState:
     
     def renderForeground(self):
         pass
+    
+    def onStep(self):
+        pass
+
+class Camera:
+    def __init__(self, x, y, w, h):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.target = None
+        
+    def follow(self, entity):
+        self.target = entity
+        
+    def update(self):
+        if self.target != None:
+            self.rect.x = self.target.x - self.rect.w/2
+            self.rect.y = self.target.y - self.rect.h/2
+    
+    def move(self, (dx, dy)):
+        self.rect.x += dx
+        self.rect.y += dy
+        
+    def transform(self, x, y):
+        return (x - self.rect.x, y - self.rect.y)
+    
+    def rectInView(self, rect):
+        # return self.rect.contains(rect)
+        if (rect.right < self.rect.left or
+            rect.left > self.rect.right or
+            rect.bottom < self.rect.top or
+            rect.top > self.rect.bottom):
+            return False
+        else:
+            return True 

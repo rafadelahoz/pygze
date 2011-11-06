@@ -1,6 +1,6 @@
 from engine.entity import Entity
 from engine.game import Game
-from engine.gamestate import GameState
+from engine.gamestate import GameState, Camera
 from engine.graphics import Spritemap, Anim, Stamp
 from engine.mask import MaskBox
 import pygame
@@ -9,7 +9,7 @@ import random
 
 class PlatformGame(Game):
     def onInit(self):
-        self.changeGameState(Level(320, 240))
+        self.changeGameState(Level(1024, 768))
         
     def onStep(self):
         if self.input.keyPressed(pygame.K_ESCAPE):
@@ -17,6 +17,7 @@ class PlatformGame(Game):
     
 class Level(GameState):
     def init(self):
+        self.camera = Camera(0, 0, 320, 240)
         self.collisionManager.setGroups(["brick", "player", "bullet"])
         self.collisionManager.subscribe("player", "brick")
         self.collisionManager.subscribe("bullet", "brick")
@@ -25,25 +26,36 @@ class Level(GameState):
         lwall.rect = pygame.Rect(0, self.height-16, self.width, 16)
         self.add(lwall)
         
-        for _i in range(1, 20):
+        for _i in range(1, 200):
             x = random.randint(0, self.width)
             y = random.randint(0, self.height)
             wall = Wall(x, y, self.game, self)
             wall.rect = pygame.Rect(x, y, 
                         8+random.randint(0, 32), 8+random.randint(0, 32))
             self.add(wall)
+        p = Player(150, 140, self.game, self)
+        self.add(p)
+        self.camera.follow(p)
         
-        self.add(Player(150, 140, self.game, self))
-        
+        self.smx, self.smy, self.lmx, self.lmy = 0, 0, 0, 0
+
 class Wall(Entity):
     def onInit(self):
         self.color = self.world.bgColor+pygame.Color(35, 35, 35)
         self.mask = MaskBox(self.rect.width, self.rect.h)
         self.world.collisionManager.add(self, "brick")
         
-    def onRender(self):
+    def inView(self, camera):
+        if camera == None:
+            return True
+        return camera.rectInView(self.mask.rect)
+    
+    def onRender(self, camera=None):
+        _r = self.mask.rect.copy()
+        if camera != None:
+            (_r.x, _r.y) = camera.transform(_r.x, _r.y)
         pygame.draw.rect(self.game.gfxEngine.renderSurface, 
-                         self.color, self.mask.rect, 0)
+                         self.color, _r, 0)
 
 class Bullet(Entity):
     def onInit(self):
@@ -167,8 +179,8 @@ class Player(Entity):
     def stopShooting(self):
         self.state = "stand"
         
-    def onRender(self):
-        self.graphic.render(self.dx, self.y)
+    def onRender(self, camera=None):
+        self.graphic.render(self.dx, self.y, camera)
         
 game = PlatformGame(320, 240, title="Platformer", scaleH=2, scaleV=2)
 

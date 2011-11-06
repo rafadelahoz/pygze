@@ -18,6 +18,7 @@ class Entity:
         # Graphic
         self.depth = 0
         self.graphic = None
+        self.visible = True
         
         # Timers
         self.timers = [-1 for _i in range(1, 10)]
@@ -48,11 +49,21 @@ class Entity:
     def destroy(self):
         self.world.remove(self)
         
+    def _render(self, camera = None):
+        if self.visible and self.inView(camera):
+            self.onRender(camera)
+        
     def placeFree(self, x, y, groups = "any"):
         return self.world.placeFree(self, x, y, groups)
     
     def moveToContact(self, x, y, groups="any"):
         return self.world.moveToContact(self, x, y, groups)
+    
+    def inView(self, camera):
+        if camera == None:
+            return True
+        else:
+            return self.graphic.inView(camera, self.x, self.y)
     
     # Overridable
     # User initialization (on instantiation)
@@ -72,9 +83,9 @@ class Entity:
     def onEndStep(self):
         pass
     
-    def onRender(self):
+    def onRender(self, camera = None):
         if self.graphic != None:
-            self.graphic.render(self.x, self.y)
+            self.graphic.render(self.x, self.y, camera)
             
     def onCollision(self, group, other):
         pass
