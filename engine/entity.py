@@ -51,7 +51,7 @@ class Entity:
         
     def _render(self, camera = None):
         if self.visible and self.inView(camera):
-            self.onRender(camera)
+            self.onRender()
         
     def placeFree(self, x, y, groups = "any"):
         return self.world.placeFree(self, x, y, groups)
@@ -83,9 +83,9 @@ class Entity:
     def onEndStep(self):
         pass
     
-    def onRender(self, camera = None):
+    def onRender(self):
         if self.graphic != None:
-            self.graphic.render(self.x, self.y, camera)
+            self.graphic.render(self.x, self.y)
             
     def onCollision(self, group, other):
         pass

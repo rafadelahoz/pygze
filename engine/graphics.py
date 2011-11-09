@@ -76,9 +76,12 @@ class Stamp(Graphic):
         self.image.set_alpha(self.alpha * 255)
         # Flip
         if self.xScale < 0 or self.yScale < 0:
-            self.gfxEngine.renderSurface.blit(pygame.transform.flip(self.image, (self.xScale < 0), (self.yScale < 0)), (x, y))
+            self.gfxEngine.renderImage(
+                pygame.transform.flip(self.image, 
+                                      (self.xScale < 0), (self.yScale < 0)), 
+                                        (x, y))
         else:
-            self.gfxEngine.renderSurface.blit(self.image, (x, y))
+            self.gfxEngine.renderImage(self.image, (x, y))
             
 class Spritemap(Graphic):
     def __init__(self, gfxEngine, path, spriteW, spriteH):
@@ -144,10 +147,10 @@ class Spritemap(Graphic):
         sprite.set_alpha(self.alpha * 255)
         # Scale
         if self.xScale < 0 or self.yScale < 0:
-            self.gfxEngine.renderSurface.blit(pygame.transform.flip(sprite, 
-                                (self.xScale < 0), (self.yScale < 0)), (x, y))
+            self.gfxEngine.renderImage(pygame.transform.flip(sprite, 
+                            (self.xScale < 0), (self.yScale < 0)), (x, y))
         else:
-            self.gfxEngine.renderSurface.blit(sprite, (x, y))
+            self.gfxEngine.renderImage(sprite, (x, y))
 
 class Anim:
     def __init__(self, frames, speed, loop = False, callback = None):

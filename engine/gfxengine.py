@@ -1,4 +1,5 @@
 import pygame
+from gamestate import Camera 
 
 class GfxEngine:
     def __init__(self, width, height, hscale=1, vscale=1, winWidth= -1, winHeight= -1):
@@ -24,6 +25,9 @@ class GfxEngine:
         self.screenSurface = pygame.display.set_mode((self.winWidth, self.winHeight))
         self.screenColor = pygame.Color(0, 0, 0)
         
+        self.activeCamera = None
+        self.identityCamera = Camera(0, 0, 0, 0)
+        
     def clearRender(self, color=None):
         if color == None:
             color = self.screenColor
@@ -43,3 +47,45 @@ class GfxEngine:
                                    (self.renderPos, self.renderPos))
         pygame.display.update()
         self.clearRender()
+        
+    def setActiveCamera(self, camera):
+        self.activeCamera = camera
+        
+    def convertCoords(self, (x, y)):
+        if self.activeCamera == None:
+            return self.identityCamera.transform(x, y)
+        else:
+            return self.activeCamera.transform(x, y)    
+    
+    # Rendering methods
+    def renderRect(self, rect, color, border=0, dest=None):
+        (x, y) = self.convertCoords((rect.x, rect.y))
+        rect.x = x
+        rect.y = y
+        if dest == None:
+            dest = self.renderSurface
+        pygame.draw.rect(dest, color, rect, border)
+        
+    def renderImage(self, surface, position, dest=None, rect=None):
+        _position = self.convertCoords(position)
+        if dest == None:
+            dest = self.renderSurface
+        if rect == None:
+            dest.blit(surface, _position)
+        else:
+            dest.blit(surface, _position, rect)
+            
+    def renderImageScaled(self, surface, position, hscale, vscale, dest=None, rect=None):
+        position = self.convertCoords(position)
+        if dest == None:
+            dest = self.renderSurface
+        if rect == None:
+            dest.blit(
+                pygame.transform.scale(surface, (surface.get_width()*hscale,
+                                                 surface.get_height()*vscale)),
+                      position)
+        else:
+            dest.blit(
+                pygame.transform.scale(surface, (surface.get_width()*hscale,
+                                                 surface.get_height()*vscale)), 
+                      position, rect)
