@@ -1,7 +1,7 @@
-from game.breakergame import BreakerGame, BreakerLevel
+from game.agame import AGame, AGameState
 
-game = BreakerGame(320, 240, title="Breaker Game", scaleH=2, scaleV=2, fps=60)
-game.changeGameState(BreakerLevel(320, 240))
+game = AGame(320, 240, title="A Game Test", scaleH=2, scaleV=2, fps=30)
+game.changeGameState(AGameState(320, 240))
 
 while not game.finished:
     game.update()

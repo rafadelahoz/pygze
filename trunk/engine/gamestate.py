@@ -45,8 +45,9 @@ class GameState:
         self.deathrow = []
     
     def render(self, gfxEngine):
+        self.game.gfxEngine.setActiveCamera(self.camera)
         self.renderBackground()
-        for ent in sorted(self.entities, key=lambda entity: entity.depth):
+        for ent in sorted(self.entities, key=lambda entity: -entity.depth):
             ent._render(self.camera)
         self.renderForeground()
 

@@ -81,7 +81,7 @@ class Bat(Entity):
         elif self.x > self.world.width-8-self.mask.getW():
             self.x = self.world.width-8-self.mask.getW()
         
-    def onRender(self):
+    def onRender(self, camera=None):
         pygame.draw.rect(self.game.gfxEngine.renderSurface, self.color, self.mask.rect)
 
 class Ball(Entity):
@@ -94,8 +94,7 @@ class Ball(Entity):
         self.world.collisionManager.add(self, "ball")
         self.ox = self.x
         self.oy = self.y
-        self.graphic = Spritemap(self.game.gfxEngine, "gfx/ball.png", 8, 8) 
-        # self.graphic = Stamp(self.game.gfxEngine, "gfx/ball.png")
+        self.graphic = Spritemap(self.game.gfxEngine, "../gfx/ball.png", 8, 8)
         
     def onStep(self):
         self.ox = self.x
@@ -146,12 +145,6 @@ class Ball(Entity):
             if mCentery < other.mask.rect.top: return 1
             elif mCentery > other.mask.rect.bottom: return 7
             else: return 4
-            
-        
-    def onRender(self):
-        Entity.onRender(self)
-        # pygame.draw.rect(self.game.gfxEngine.renderSurface, self.color, self.mask.rect)
-        # self.mask.renderBounds(self.game.gfxEngine.renderSurface, pygame.Color(255, 0, 0))
         
     def onDestroy(self):
         print "Ball out"
@@ -162,7 +155,7 @@ class Wall(Entity):
         self.mask = MaskBox(self.rect.width, self.rect.h)
         self.world.collisionManager.add(self, "brick")
         
-    def onRender(self):
+    def onRender(self, camera=None):
         pygame.draw.rect(self.game.gfxEngine.renderSurface, self.color, self.mask.rect, 0)
         # self.mask.renderBounds(self.game.gfxEngine.renderSurface, pygame.Color(255, 0, 0))
 
@@ -180,7 +173,7 @@ class Brick(Entity):
             other.sp += 0.1
             self.destroy()
             
-    def onRender(self):
+    def onRender(self, camera=None):
         pygame.draw.rect(self.game.gfxEngine.renderSurface, self.color, self.mask.rect, 0)
         # self.mask.renderBounds(self.game.gfxEngine.renderSurface, pygame.Color(255, 0, 0))
     
@@ -191,9 +184,10 @@ class Mousey(Entity):
     def onInit(self):
         self.color = pygame.Color(255, 255, 255)
         self.mask = MaskBox(5, 5, offset=(-2, -2))
+        self.depth = -1
         
     def onStep(self):
-        nx, ny = self.game.input.getMousePosition()
+        nx, ny = self.game.input.getMousePosition(self.game.gfxEngine)
         
         if not self.placeFree(nx, ny, ["brick", "ball"]):
             self.color = pygame.Color(255, 0, 0)
@@ -203,5 +197,17 @@ class Mousey(Entity):
         self.x = nx
         self.y = ny
         
-    def onRender(self):
+    def onRender(self, camera=None):
         self.mask.renderBounds(self.game.gfxEngine.renderSurface, self.color)
+
+# ------------------------------- MAIN --------------------------------------- #
+
+game = BreakerGame(320, 240, title="Breaker Game Test", scaleH=2, scaleV=2, fps=30)
+game.changeGameState(BreakerLevel(320, 240))
+
+while not game.finished:
+    game.update()
+
+game.end()
+
+print "End!"

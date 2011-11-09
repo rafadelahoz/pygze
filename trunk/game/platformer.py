@@ -50,12 +50,8 @@ class Wall(Entity):
             return True
         return camera.rectInView(self.mask.rect)
     
-    def onRender(self, camera=None):
-        _r = self.mask.rect.copy()
-        if camera != None:
-            (_r.x, _r.y) = camera.transform(_r.x, _r.y)
-        pygame.draw.rect(self.game.gfxEngine.renderSurface, 
-                         self.color, _r, 0)
+    def onRender(self):
+        self.game.gfxEngine.renderRect(self.mask.rect.copy(), self.color)
 
 class Bullet(Entity):
     def onInit(self):
@@ -71,6 +67,7 @@ class Bullet(Entity):
         
     def onCollision(self, group, other):
         if group == "brick":
+            self.moveToContact(self.x, self.y, ["brick"])
             self.destroy()
             
     def onDestroy(self):
@@ -179,10 +176,10 @@ class Player(Entity):
     def stopShooting(self):
         self.state = "stand"
         
-    def onRender(self, camera=None):
-        self.graphic.render(self.dx, self.y, camera)
+    def onRender(self):
+        self.graphic.render(self.dx, self.y)
         
-game = PlatformGame(320, 240, title="Platformer", scaleH=2, scaleV=2)
+game = PlatformGame(320, 240, title="Platformer Game Test", scaleH=2, scaleV=2)
 
 while not game.finished:
     game.update()
