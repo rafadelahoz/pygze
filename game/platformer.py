@@ -6,6 +6,9 @@ from engine.mask import MaskBox
 import pygame
 import random
 
+from engine.fontmanager import cFontManager
+
+pygame.font.init()
 
 class PlatformGame(Game):
     def onInit(self):
@@ -95,6 +98,9 @@ class Player(Entity):
         self.moving = False
         self.dx = self.x
         
+        self.fontManager = cFontManager(((None, 24), ('arial', 18), ('arial', 24),
+            ('courier', 12)))
+        
     def onStep(self):
         nx, ny = self.x, self.y
         
@@ -178,6 +184,11 @@ class Player(Entity):
         
     def onRender(self):
         self.graphic.render(self.dx, self.y)
+        self.fontManager.Draw(self.game.gfxEngine.renderSurface, 
+                              'arial', 18, "ANUS", 
+                              self.world.camera.transform(self.world.camera.getX(),
+                                                          self.world.camera.getY()),
+                              pygame.Color(255, 255, 255))
         
 game = PlatformGame(320, 240, title="Platformer Game Test", scaleH=2, scaleV=2)
 

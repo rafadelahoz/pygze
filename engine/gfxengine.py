@@ -66,7 +66,7 @@ class GfxEngine:
             dest = self.renderSurface
         pygame.draw.rect(dest, color, rect, border)
         
-    def renderImage(self, surface, position, dest=None, rect=None):
+    def renderImage(self, surface, position, rect=None, dest=None):
         _position = self.convertCoords(position)
         if dest == None:
             dest = self.renderSurface

@@ -252,3 +252,83 @@ class Anim:
         
     def isPlaying(self):
         return self.playing and not self.paused
+
+class Tileset():
+    def __init__(self, gfxEngine, path, tilew, tileh):
+        self.gfxEngine = gfxEngine
+        self.image = pygame.image.load(path).convert()
+        self.w = self.image.get_width()
+        self.h = self.image.get_height()
+        self.tilew = tilew
+        self.tileh = tileh
+    
+    def getTileId(self, (x, y)):
+        return y*self.w+x
+    
+    def getTile(self, tid):
+        return pygame.Rect(tid%self.w*self.tilew, tid/self.w*self.tileh, 
+                           self.tilew, self.tileh)
+    
+class Tilemap(Graphic):
+    def __init__(self, gfxEngine):
+        self.gfxEngine = gfxEngine
+        self.tileset = None
+        self.tilemap = None
+        # In tiles
+        self.w = 0
+        self.h = 0
+        self.wTiles = 0
+        self.hTiles = 0
+        
+    def setTileset(self, tset):
+        self.tileset = tset
+        # If all info's gathered, update!
+        if self.tilemap != None:
+            self.w = tset.tilew*self.wTiles
+            self.h = tset.tileh*self.hTiles
+        
+    def setTilemap(self, tmap):
+        self.tilemap = tmap
+        self.wTiles = len(tmap)
+        self.hTiles = len(tmap[0])
+        # If all info's gathered, update!
+        if self.tileset != None:
+            self.w = self.tileset.tilew*self.wTiles
+            self.h = self.tileset.tileh*self.hTiles
+        
+    def setTile(self, (x, y), tid):
+        if x >= 0 and y >= 0 and x < self.w and y < self.h:
+            self.tilemap[x][y] = tid
+            
+    def getTile(self, (x, y)):
+        if x >= 0 and y >= 0 and x < self.w and y < self.h:
+            return self.tilemap[x][y]
+        else:
+            return -1
+        
+    def getTileCoordsAt(self, (x, y)):
+        return (x / self.tileset.tilew, y / self.tileset.tileh)
+        
+    def render(self, x, y, camera = None):
+        # ix, iy = camera.getX()-x, camera.getY()-y
+        itx, ity, ftx, fty = 0, 0, self.wTiles, self.hTiles
+        # Adjust if camera present
+        if not self.gfxEngine.activeCamera == None:
+            camera = self.gfxEngine.activeCamera
+            (itx, ity) = self.getTileCoordsAt((camera.getX()-x, camera.getY()-y))
+            '''(ftx, fty) = self.getTileCoordsAt(
+                            (min(camera.getX()+camera.getW()-x, 
+                                 (self.wTiles-1)*self.tileset.tilew), 
+                             min(camera.getY()+camera.getH()-y,
+                                 (self.hTiles-1)*self.tileset.tileh)))'''
+            (ftx, fty) = (camera.getX()+camera.getW()-x, 
+                            camera.getY()+camera.getH()-y)
+            (itx, ity) = (max(0, itx), max(0, ity))
+            (ftx, fty) = (min(ftx+1, (self.wTiles-1)),
+                             min(fty+1, (self.hTiles-1)))
+        # Render all tiles in range
+        for i in range(itx, ftx):
+            for j in range(ity, fty):
+                self.gfxEngine.renderImage(self.tileset.image, 
+                                   (i*self.tileset.tilew, j*self.tileset.tileh), 
+                                       self.tileset.getTile(self.tilemap[i][j]))

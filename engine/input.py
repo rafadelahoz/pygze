@@ -68,13 +68,18 @@ class Input:
             
     # Mouse
     # Get mouse position
-    # If gfxEngine provided, will give it relative to renderSurface and scale
+    # If gfxEngine provided, will give it relative to scale and camera
     # else it will give it relative to display
     def getMousePosition(self, gfxEngine = None):
         if gfxEngine == None:
             return pygame.mouse.get_pos();
         else:
             (x, y) = pygame.mouse.get_pos();
+            # This will actually get an old camera for a step when the
+            # gamestate changes it
+            if not gfxEngine.activeCamera == None:
+                return (x/gfxEngine.renderScaleH+gfxEngine.activeCamera.getX(),
+                        y/gfxEngine.renderScaleV+gfxEngine.activeCamera.getY()) 
             return (x/gfxEngine.renderScaleH, y/gfxEngine.renderScaleV)
     
     def mouseButton(self, button):
