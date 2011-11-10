@@ -93,6 +93,21 @@ class Camera:
         self.rect = pygame.Rect(x, y, w, h)
         self.target = None
         
+    def getX(self):
+        return self.rect.x
+    
+    def getY(self):
+        return self.rect.y
+    
+    def getW(self):
+        return self.rect.w
+    
+    def getH(self):
+        return self.rect.h
+    
+    def getPosition(self):
+        return (self.rect.x, self.rect.y)
+        
     def follow(self, entity):
         self.target = entity
         
