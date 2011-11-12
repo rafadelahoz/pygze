@@ -257,8 +257,9 @@ class Tileset():
     def __init__(self, gfxEngine, path, tilew, tileh):
         self.gfxEngine = gfxEngine
         self.image = pygame.image.load(path).convert()
-        self.w = self.image.get_width()
-        self.h = self.image.get_height()
+        # In tiles
+        self.w = self.image.get_width()/tilew
+        self.h = self.image.get_height()/tileh
         self.tilew = tilew
         self.tileh = tileh
     
@@ -266,7 +267,7 @@ class Tileset():
         return y*self.w+x
     
     def getTile(self, tid):
-        return pygame.Rect(tid%self.w*self.tilew, tid/self.w*self.tileh, 
+        return pygame.Rect((tid%self.w)*self.tilew, (tid/self.w)*self.tileh, 
                            self.tilew, self.tileh)
     
 class Tilemap(Graphic):
@@ -306,8 +307,14 @@ class Tilemap(Graphic):
         else:
             return -1
         
+    # Get coordinates of tile which contains pixel position (x, y)
     def getTileCoordsAt(self, (x, y)):
         return (x / self.tileset.tilew, y / self.tileset.tileh)
+    
+    # Get id of tile which contains pixel position (x, y)
+    def getTileAt(self, (x, y)):
+        (x, y) = self.getTileCoordsAt((x, y))
+        return self.tilemap[x][y]
         
     def render(self, x, y, camera = None):
         # ix, iy = camera.getX()-x, camera.getY()-y
@@ -315,7 +322,8 @@ class Tilemap(Graphic):
         # Adjust if camera present
         if not self.gfxEngine.activeCamera == None:
             camera = self.gfxEngine.activeCamera
-            (itx, ity) = self.getTileCoordsAt((camera.getX()-x, camera.getY()-y))
+            (itx, ity) = self.getTileCoordsAt((camera.getX()-x, 
+                                               camera.getY()-y))
             '''(ftx, fty) = self.getTileCoordsAt(
                             (min(camera.getX()+camera.getW()-x, 
                                  (self.wTiles-1)*self.tileset.tilew), 
@@ -332,3 +340,60 @@ class Tilemap(Graphic):
                 self.gfxEngine.renderImage(self.tileset.image, 
                                    (i*self.tileset.tilew, j*self.tileset.tileh), 
                                        self.tileset.getTile(self.tilemap[i][j]))
+                
+# Tilemap for a small quantity of tiles (e.g. foreground tiles)
+class SparseTilemap(Graphic):
+    def __init__(self, gfxEngine, w, h):
+        self.gfxEngine = gfxEngine
+        self.tileset = None
+        self.tilemap = {}
+        # In pixels
+        self.w = 0
+        self.h = 0
+        # In tiles
+        self.wTiles = w
+        self.hTiles = h 
+        
+    def setTileset(self, tset):
+        self.tileset = tset
+        self.w = tset.tilew*self.wTiles
+        self.h = tset.tileh*self.hTiles
+        
+    def setTilemap(self, tmap):
+        del self.tilemap
+        self.tilemap = tmap
+        
+    def setTile(self, (x, y), tid):
+        self.tilemap[(x, y)] = tid
+        
+    def getTile(self, (x, y)):
+        if (x, y) in self.tilemap.keys():
+            return self.tilemap[(x,y)]
+        else:
+            return -1
+        
+    def getTileCoordsAt(self, (x, y)):
+        return (x / self.tileset.tilew, y / self.tileset.tileh)
+    
+    def getTileAt(self, (x, y)):
+        (x, y) = self.getTileCoordsAt((x, y))
+        return self.getTile((x, y))
+    
+    def render(self, x, y, camera = None):
+        itx, ity, ftx, fty = 0, 0, self.wTiles, self.hTiles
+        # Adjust if camera present
+        if not self.gfxEngine.activeCamera == None:
+            camera = self.gfxEngine.activeCamera
+            (itx, ity) = self.getTileCoordsAt((camera.getX()-x, 
+                                               camera.getY()-y))
+            (ftx, fty) = (camera.getX()+camera.getW()-x, 
+                            camera.getY()+camera.getH()-y)
+            (itx, ity) = (max(0, itx), max(0, ity))
+            (ftx, fty) = (min(ftx+1, (self.wTiles-1)),
+                             min(fty+1, (self.hTiles-1)))
+        # Render tiles in range
+        for (tx, ty) in self.tilemap.keys():
+            if tx in range(itx, ftx) and ty in range(ity, fty):
+                self.gfxEngine.renderImage(self.tileset.image, 
+                               (tx*self.tileset.tilew, ty*self.tileset.tileh), 
+                               self.tileset.getTile(self.tilemap[(tx,ty)]))

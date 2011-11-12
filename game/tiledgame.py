@@ -1,7 +1,7 @@
 from engine.entity import Entity
 from engine.game import Game
 from engine.gamestate import GameState, Camera
-from engine.graphics import Tileset, Tilemap
+from engine.graphics import Tileset, Tilemap, SparseTilemap
 import pygame
 import random
 
@@ -36,14 +36,27 @@ class Map(Entity):
             [[random.randint(0, 1) for _j in range(0, 240/8)] 
              for _i in range(0, 320/8)])
         
+        self.overlay = SparseTilemap(self.game.gfxEngine, 320/16, 240/16)
+        self.overlay.setTileset(
+                        Tileset(self.game.gfxEngine, "../gfx/overtset.png", 
+                                16, 16))
+        for _i in range(0, random.randint(10, 60)):
+            self.overlay.setTile((random.randint(0, (320/16)-1), 
+                                  random.randint(0, (240/16)-1)), 
+                                 random.randint(0,1))
+        
     def onStep(self):
         if self.game.input.mousePressed(0): 
             (x, y) = self.game.input.getMousePosition(self.game.gfxEngine)
             tid = self.graphic.getTile(self.graphic.getTileCoordsAt((x, y)))
             self.graphic.setTile(self.graphic.getTileCoordsAt((x, y)), 
                                  (tid+1)%2)
+            
+    def onRender(self):
+        self.graphic.render(self.x, self.y)
+        self.overlay.render(self.x, self.y)
         
-game = TiledGame(160, 140, title="Tiled Game Test", scaleH=4, scaleV=4)
+game = TiledGame(160, 140, title="Tiled Game Test", scaleH=2, scaleV=2)
 while not game.finished:
     game.update()
     
