@@ -10,6 +10,8 @@ class GameState:
         self.deathrow = []
         self.camera = None
         
+        self.instanceNumber = 0
+        
     def _init(self, game):
         self.game = game
         self.init()
@@ -43,6 +45,12 @@ class GameState:
         for ent in self.deathrow:
             self._remove(ent)
         self.deathrow = []
+        
+        # Log changes in entity number
+        oic = self.instanceNumber
+        self.instanceNumber = len(self.entities)
+        if (oic != self.instanceNumber):
+            print self.instanceNumber
     
     def render(self, gfxEngine):
         self.game.gfxEngine.setActiveCamera(self.camera)

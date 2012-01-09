@@ -12,7 +12,7 @@ class TiledGame(Game):
 class TiledState(GameState):
     def init(self):
         self.camera = Camera(0, 0, 160, 140)
-        self.add(Map(0, 0, self.game, self))
+        self.add(Map(12, 32, self.game, self))
         
     def onStep(self):
         dx, dy = 0, 0
