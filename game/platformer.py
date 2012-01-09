@@ -78,7 +78,7 @@ class Bullet(Entity):
 
 class Player(Entity):
     def onInit(self):
-        self.graphic = Spritemap(self.game.gfxEngine, "../gfx/mega.png", 32, 32);
+        self.graphic = Spritemap(self.game.gfxEngine, "../gfx/mega.png", 32, 32)
         self.graphic.addAnim("stand", Anim([0], 1))
         self.graphic.addAnim("walk", Anim([1, 2, 3, 2], 0.3, True))
         self.graphic.addAnim("jump", Anim([5], 1))

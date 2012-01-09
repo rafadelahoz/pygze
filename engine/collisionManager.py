@@ -30,7 +30,8 @@ class CollisionManager:
     # Remove entity from group
     def remove(self, entity, group):
         if group in self.entities:
-            self.entities[group].remove(entity)
+            if entity in self.entities[group]:
+                self.entities[group].remove(entity)
             
     # Subscribe group to collisions with to
     def subscribe(self, group, to):
@@ -113,6 +114,48 @@ class CollisionManager:
         # If not collided, place free
         entity.mask.updatePosition(ox, oy)
         return True
+    
+    def placeMeeting(self, entity, x, y, groups = "any"):
+        ox, oy = entity.x, entity.y
+        entity.mask.updatePosition(x, y)
+        # If any group, check'em all
+        if groups == "any":
+            for g in self.groups:
+                for ent in self.entities[g]:
+                    if ent != entity and ent.collidable:
+                        if ent.collides(entity):
+                            entity.mask.updatePosition(ox, oy)
+                            return ent
+        # If given group, check just those on the list
+        else:
+            for g in groups:
+                for ent in self.entities[g]:
+                    if ent != entity and ent.collidable:
+                        if ent.collides(entity):
+                            entity.mask.updatePosition(ox, oy)
+                            return ent
+        return None
+    
+    def placeMeetingType(self, entity, x, y, groups = "any"):
+        ox, oy = entity.x, entity.y
+        entity.mask.updatePosition(x, y)
+        # If any group, check'em all
+        if groups == "any":
+            for g in self.groups:
+                for ent in self.entities[g]:
+                    if ent != entity and ent.collidable:
+                        if ent.collides(entity):
+                            entity.mask.updatePosition(ox, oy)
+                            return (ent, g)
+        # If given group, check just those on the list
+        else:
+            for g in groups:
+                for ent in self.entities[g]:
+                    if ent != entity and ent.collidable:
+                        if ent.collides(entity):
+                            entity.mask.updatePosition(ox, oy)
+                            return (ent, g)
+        return (None, 'none')        
     
     def moveToContact(self, entity, x, y, groups = "any"):
         tx = entity.x

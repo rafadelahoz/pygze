@@ -22,11 +22,16 @@ class Entity:
         
         # Timers
         self.timers = [-1 for _i in range(1, 10)]
+        
+        # Ghost Status
+        self.ghost = False
             
         # Let user perform initialization
         self.init()
     
     def update(self):
+        if self.ghost:
+            return
         # Performs common operations on every entity
         self.onStep()
         if self.graphic != None:
@@ -41,25 +46,39 @@ class Entity:
                     self.onTimer(i)
         
     def collides(self, ent):
+        if self.ghost:
+            return False
         if ent == self:
             return False
         if not self.mask is None and not ent.mask is None:
             return self.mask.collides(ent.mask)
         
     def destroy(self):
+        if self.ghost:
+            return
+        self.ghost = True
+        
         self.world.remove(self)
         
     def _render(self, camera = None):
+        if self.ghost:
+            return
         if self.visible and self.inView(camera):
             self.onRender()
         
     def placeFree(self, x, y, groups = "any"):
+        if self.ghost:
+            return True
         return self.world.placeFree(self, x, y, groups)
     
     def moveToContact(self, x, y, groups="any"):
+        if self.ghost:
+            return True 
         return self.world.moveToContact(self, x, y, groups)
     
     def inView(self, camera):
+        if self.ghost:
+            return False
         if camera == None:
             return True
         else:

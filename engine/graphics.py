@@ -11,6 +11,8 @@ class Graphic:
         self.w = 0
         self.h = 0
         
+        self.offset = (0, 0)
+        
         self.color = pygame.Color(255, 255, 255)
         self.xScale = 1.0
         self.yScale = 1.0
@@ -24,11 +26,15 @@ class Graphic:
         if camera == None:
             return True
         else:
-            return camera.rectInView(pygame.Rect(x, y, self.w, self.h))
+            (_x, _y) = self.offset
+            return camera.rectInView(pygame.Rect(x+_x, y+_y, self.w, self.h))
 
     def render(self, x, y, camera = None):
+        (_x, _y) = self.offset
         if not camera == None:
-            (x, y) = camera.transform(x, y)
+            (x, y) = camera.transform(x + _x, y + _y)
+        else:
+            (x, y) = (x + _x, y + _y)
         if config.fastRender:
             self.fastRender(x, y)
         else:
@@ -105,7 +111,7 @@ class Spritemap(Graphic):
 
     def getBox(self):
         return ((self.imageIndex % self.cols)*self.spriteW,
-             (self.imageIndex / self.cols)*self.spriteW,
+             (self.imageIndex / self.cols)*self.spriteH,
              self.spriteW, self.spriteH)
     
     def addAnim(self, name, anim):
@@ -173,7 +179,6 @@ class Anim:
         
     def update(self):
         if self.playing and not self.paused:
-            self.ticks += self.speed
             (_dec, ent) = math.modf(self.ticks)
             if True:
                 # Reset ticker
@@ -197,17 +202,21 @@ class Anim:
                     # Anyway, callback
                     if self.callback != None:
                         self.callback()
+                    return
                 elif self.speed < 0 and self.frame < -len(self.frames)+1:
                     if self.loop:
                         self.ticks = len(self.frames)-1
                         self.frame = len(self.frames)-1
                         self.finished = False
+                        return
                     else:
                         self.ticks = 0
                         self.frame = 0
                         self.finished = True
                         self.playing = False
                         self.paused = False
+                        return
+            self.ticks += self.speed
                     
     def getImageIndex(self):
         return self.frames[self.frame]
@@ -338,7 +347,7 @@ class Tilemap(Graphic):
         for i in range(itx, ftx):
             for j in range(ity, fty):
                 self.gfxEngine.renderImage(self.tileset.image, 
-                                   (i*self.tileset.tilew, j*self.tileset.tileh), 
+                                   (x + i*self.tileset.tilew, y + j*self.tileset.tileh), 
                                        self.tileset.getTile(self.tilemap[i][j]))
                 
 # Tilemap for a small quantity of tiles (e.g. foreground tiles)
@@ -395,5 +404,5 @@ class SparseTilemap(Graphic):
         for (tx, ty) in self.tilemap.keys():
             if tx in range(itx, ftx) and ty in range(ity, fty):
                 self.gfxEngine.renderImage(self.tileset.image, 
-                               (tx*self.tileset.tilew, ty*self.tileset.tileh), 
+                               (x + tx*self.tileset.tilew, y + ty*self.tileset.tileh), 
                                self.tileset.getTile(self.tilemap[(tx,ty)]))

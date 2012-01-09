@@ -39,6 +39,8 @@ class Dude(Entity):
         self.world.collisionManager.subscribe("player", "other")
         
         self.joy = self.game.input.addJoystick()
+        if self.joy == None:
+            return
         if not self.joy.isValid:
             del self.joy
             self.joy = None
@@ -46,10 +48,10 @@ class Dude(Entity):
     def onStep(self):
         self.graphic.alpha = 1.0
         
-        if self.game.input.key(pygame.K_LEFT) or self.joy.getAxis(0) < -0.3:
+        if self.game.input.key(pygame.K_LEFT) or (self.joy != None and self.joy.getAxis(0) < -0.3):
             self.x -= self.sp
             self.facing = 1
-        elif self.game.input.key(pygame.K_RIGHT) or self.joy.getAxis(0) > 0.3:
+        elif self.game.input.key(pygame.K_RIGHT) or (self.joy != None and self.joy.getAxis(0) > 0.3):
             self.x += self.sp
             self.facing = 0
             
@@ -58,7 +60,7 @@ class Dude(Entity):
         else:
             self.graphic.xScale = -1
             
-        if self.joy.buttonReleased(0):
+        if self.joy != None and self.joy.buttonReleased(0):
             self.graphic.rotation += 5
             
         self.depth = -self.y
