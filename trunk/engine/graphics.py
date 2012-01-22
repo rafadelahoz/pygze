@@ -176,15 +176,15 @@ class Anim:
         self.playing = False
         self.finished = False
         self.ticks = 0
-        
+
     def update(self):
         if self.playing and not self.paused:
-            (_dec, ent) = math.modf(self.ticks)
-            if True:
+            # If a step of animation has been completed
+            if self.ticks >= 1:
                 # Reset ticker
-                # self.ticks = 0
+                self.ticks = 0
                 # Increase frame
-                self.frame = ent.__int__()
+                self.frame += 1
                 # If finished
                 if self.speed > 0 and self.frame >= len(self.frames):
                     # If it's a loop, restart
